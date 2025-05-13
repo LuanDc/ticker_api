@@ -4,7 +4,8 @@ defmodule TickerApiWeb.Api.TickerCsvController do
   alias TickerApi.B3Tickers.B3TickersBucket
 
   def upload(conn, %{"file" => file}) do
-    :done = B3TickersBucket.upload!(file.path)
+    binary = File.read!(file.path)
+    %{status_code: 200} = B3TickersBucket.upload!(file.path, binary)
 
     conn
     |> put_status(:created)

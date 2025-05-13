@@ -1,11 +1,8 @@
 defmodule TickerApi.B3Tickers.B3TickersBucketImpl do
-  alias ExAws.S3
-
-  @spec upload!(String.t()) :: :done
-  def upload!(path) do
-    path
-    |> S3.Upload.stream_file()
-    |> S3.upload("tickers-bucket", "/")
+  @spec upload!(String.t(), binary()) :: :done
+  def upload!(filename, image_binary) do
+    "b3-stock-quotes"
+    |> ExAws.S3.put_object(filename, image_binary)
     |> ExAws.request!()
   end
 end
