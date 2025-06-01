@@ -61,11 +61,13 @@ defmodule TickerApi.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:hammox, "~> 0.7", only: :test},
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
       {:poison, "~> 3.0"},
       {:hackney, "~> 1.9"},
-      {:sweet_xml, "~> 0.6.6"}
+      {:sweet_xml, "~> 0.7"},
+      {:broadway, "~> 1.2"},
+      {:broadway_sqs, "~> 0.7"}
     ]
   end
 
