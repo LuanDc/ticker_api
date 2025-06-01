@@ -1,8 +1,8 @@
 defmodule TickerApi.B3Tickers.B3TickersBucketImpl do
-  @spec upload!(String.t(), binary()) :: :done
-  def upload!(filename, image_binary) do
-    "b3-stock-quotes"
-    |> ExAws.S3.put_object(filename, image_binary)
-    |> ExAws.request!()
+  @spec upload :: {:ok, String.t()} | {:error, any()}
+  def upload do
+    :s3
+    |> ExAws.Config.new()
+    |> ExAws.S3.presigned_url(:post, "b3-tickers", "/", [])
   end
 end
