@@ -67,7 +67,9 @@ defmodule TickerApi.MixProject do
       {:hackney, "~> 1.9"},
       {:sweet_xml, "~> 0.7"},
       {:broadway, "~> 1.2"},
-      {:broadway_sqs, "~> 0.7"}
+      {:broadway_sqs, "~> 0.7"},
+      {:nimble_csv, "~> 1.1"},
+      {:unzip, "~> 0.12.0"}
     ]
   end
 
