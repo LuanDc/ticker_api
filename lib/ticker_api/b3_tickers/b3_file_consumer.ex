@@ -1,4 +1,4 @@
-defmodule TickerApi.TickersFilePartitioner do
+defmodule TickerApi.B3FileConsumer do
   use Broadway
 
   NimbleCSV.define(CSV, separator: ";", escape: "\"")
