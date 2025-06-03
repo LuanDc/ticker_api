@@ -65,10 +65,11 @@ config :ex_aws,
   access_key_id: "access_key_id",
   secret_access_key: "secret_access_key"
 
-config :ex_aws, :s3,
-  scheme: "http://",
-  host: "localhost",
-  port: 4566
+config :ticker_api, TickerApi.Cache,
+  conn_opts: [
+    host: "127.0.0.1",
+    port: 6379
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

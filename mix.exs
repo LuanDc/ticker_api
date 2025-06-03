@@ -69,7 +69,10 @@ defmodule TickerApi.MixProject do
       {:broadway, "~> 1.2"},
       {:broadway_sqs, "~> 0.7"},
       {:nimble_csv, "~> 1.1"},
-      {:unzip, "~> 0.12.0"}
+      {:unzip, "~> 0.12.0"},
+      {:decorator, "~> 1.4"},
+      {:nebulex, "~> 3.0.0-rc.1"},
+      {:nebulex_redis_adapter, "~> 3.0.0-rc.1"}
     ]
   end
 

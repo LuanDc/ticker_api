@@ -10,6 +10,7 @@ defmodule TickerApi.Application do
     children = [
       TickerApiWeb.Telemetry,
       TickerApi.Repo,
+      TickerApi.Cache,
       {DNSCluster, query: Application.get_env(:ticker_api, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TickerApi.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -17,8 +18,7 @@ defmodule TickerApi.Application do
       # Start a worker by calling: TickerApi.Worker.start_link(arg)
       # {TickerApi.Worker, arg},
       # Start to serve requests, typically the last entry
-      TickerApiWeb.Endpoint,
-      {TickerApi.TickersFilePartitioner, []}
+      TickerApiWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
