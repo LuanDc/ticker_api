@@ -15,3 +15,14 @@ services:
     environment:
       - SERVICES=s3, sns, sqs
       - DEFAULT_REGION=us-east-1
+
+  redis:
+    image: redis
+    volumes:
+      - cache:/root/redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  cache:
+    driver: local
