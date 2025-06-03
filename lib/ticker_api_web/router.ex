@@ -22,7 +22,9 @@ defmodule TickerApiWeb.Router do
 
   scope "/api", TickerApiWeb.Api do
     pipe_through :api
-    post "/ticker_csv_file", TickerCsvController, :upload
+
+    get "/ticker_csv_file", TickerCsvController, :show
+    post "/ticker_csv_file", TickerCsvController, :create
   end
 
   # Other scopes may use custom stacks.
