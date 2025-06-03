@@ -1,13 +1,14 @@
 defmodule TickerApi.Tickers do
-  @moduledoc """
-  This module is responsible for exposing functions about stocks exchange context.
-  """
+  use Nebulex.Caching
   import Ecto.Query
 
-  alias TickerApi.Repo
+  alias TickerApi.{Cache, Repo}
   alias InvestimentPlatform.Ticker
 
+  @ttl :timer.hours(1)
+
   @spec get_max_quote(String.t(), String.t()) :: integer() | nil
+  @decorate cacheable(cache: Cache, key: {:max_quote, ticker, start_date}, opts: [ttl: @ttl])
   def get_max_quote(ticker, start_date) when is_binary(ticker) and is_binary(start_date) do
     query =
       from t in Ticker,
@@ -20,6 +21,11 @@ defmodule TickerApi.Tickers do
   end
 
   @spec get_max_daily_volume(String.t(), String.t()) :: integer() | nil
+  @decorate cacheable(
+              cache: Cache,
+              key: {:max_daily_volume, ticker, start_date},
+              opts: [ttl: @ttl]
+            )
   def get_max_daily_volume(ticker, start_date) when is_binary(ticker) and is_binary(start_date) do
     query =
       from t in Ticker,
