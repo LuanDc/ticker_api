@@ -3,6 +3,8 @@ defmodule TickerApi.B3FileConsumer do
 
   NimbleCSV.define(CSV, separator: ";", escape: "\"")
 
+  alias TickerApi.Ticker
+
   def start_link(_opts) do
     Broadway.start_link(__MODULE__,
       name: __MODULE__,
@@ -62,12 +64,8 @@ defmodule TickerApi.B3FileConsumer do
       |> CSV.to_line_stream()
       |> CSV.parse_stream(skip_headers: true)
       |> Stream.map(&parse_raw/1)
-      |> Stream.map(&IO.inspect/1)
       |> Stream.chunk_every(100)
-      |> Stream.map(&IO.inspect/1)
-      |> Stream.map(
-        &TickerApi.Repo.insert_all(InvestimentPlatform.Ticker, &1, on_conflict: :nothing)
-      )
+      |> Stream.map(&TickerApi.Repo.insert_all(Ticker, &1, on_conflict: :nothing))
       |> Stream.run()
     end)
     |> Stream.run()

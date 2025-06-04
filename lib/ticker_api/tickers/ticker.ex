@@ -1,4 +1,4 @@
-defmodule InvestimentPlatform.Ticker do
+defmodule TickerApi.Ticker do
   @moduledoc false
   use Ecto.Schema
 

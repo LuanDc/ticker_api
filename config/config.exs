@@ -65,6 +65,17 @@ config :ex_aws,
   access_key_id: "access_key_id",
   secret_access_key: "secret_access_key"
 
+# Configures PromEx
+config :ticker_api, TickerApi.PromEx,
+  manual_metrics_start_delay: :no_delay,
+  grafana: [
+    host: "http://localhost:3000",
+    upload_dashboards_on_start: true,
+    folder_name: "TickerApi Dashboards",
+    annotate_app_lifecycle: true,
+    auth_token: "auth_token"
+  ]
+
 config :ticker_api, TickerApi.Cache,
   conn_opts: [
     host: "127.0.0.1",

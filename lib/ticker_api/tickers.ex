@@ -2,8 +2,7 @@ defmodule TickerApi.Tickers do
   use Nebulex.Caching
   import Ecto.Query
 
-  alias TickerApi.{Cache, Repo}
-  alias InvestimentPlatform.Ticker
+  alias TickerApi.{Cache, Repo, Ticker}
 
   @ttl :timer.hours(1)
 

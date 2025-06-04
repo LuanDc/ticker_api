@@ -8,6 +8,7 @@ defmodule TickerApi.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      TickerApi.PromEx,
       TickerApiWeb.Telemetry,
       TickerApi.Repo,
       TickerApi.Cache,
@@ -18,7 +19,8 @@ defmodule TickerApi.Application do
       # Start a worker by calling: TickerApi.Worker.start_link(arg)
       # {TickerApi.Worker, arg},
       # Start to serve requests, typically the last entry
-      TickerApiWeb.Endpoint
+      TickerApiWeb.Endpoint,
+      TickerApi.B3FileConsumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
