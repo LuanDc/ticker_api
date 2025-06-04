@@ -1,0 +1,14 @@
+@startuml TickerApi
+skinparam SequenceMessageAlignment center
+skinparam padding 15
+Client -> TickerApi : Get presigned URL
+TickerApi -> Client : Return presigned URL
+Client -> S3 : Upload file to S3
+S3 -> Client : Confirm upload
+S3 -> SNS : Publish s3:ObjectCreated event
+SNS -> SQS : Publish event on SQS queue
+SQS -> TickerApi : Consume event from the queue
+TickerApi -> S3 : Get file from S3
+S3 -> TickerApi : Read file content by stream
+TickerApi -> TickerApiDatabase : Send file content to database
+@enduml
