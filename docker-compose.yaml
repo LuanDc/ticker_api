@@ -7,6 +7,13 @@ services:
     ports:
       - "5432:5432"
 
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@db:5432/investiment_platform_dev?sslmode=disable"
+
   localstack:
     image: localstack/localstack
     container_name: localstack
@@ -22,6 +29,13 @@ services:
       - cache:/root/redis
     ports:
       - "6379:6379"
+
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.6.0-alpine
+    ports:
+      - 9121:9121
+    command:
+      - '--redis.addr=redis://redis:6379'
 
   prometheus:
     image: prom/prometheus
