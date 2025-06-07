@@ -6,10 +6,9 @@ provider "aws" {
 
 resource "aws_sqs_queue" "ticker_file_uploaded_queue" {
   name = "ticker-file-uploaded-queue"
-  visibility_timeout_seconds = 600
 }
 
-# SNS Topic
+#SNS Topic
 
 resource "aws_sns_topic" "ticker_file_uploaded_notifications" {
   name = "ticker-file-uploaded-notifications"
