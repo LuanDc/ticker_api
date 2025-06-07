@@ -7,6 +7,12 @@
 # General application configuration
 import Config
 
+config :ticker_api, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [b3_file_ingestion: 2],
+  repo: TickerApi.Repo
+
 config :ticker_api,
   ecto_repos: [TickerApi.Repo],
   generators: [timestamp_type: :utc_datetime]

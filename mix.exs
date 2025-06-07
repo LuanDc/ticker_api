@@ -73,7 +73,9 @@ defmodule TickerApi.MixProject do
       {:decorator, "~> 1.4"},
       {:nebulex, "~> 3.0.0-rc.1"},
       {:nebulex_redis_adapter, "~> 3.0.0-rc.1"},
-      {:prom_ex, "~> 1.10.0"}
+      {:prom_ex, "~> 1.10.0"},
+      {:oban, "~> 2.19"},
+      {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
 

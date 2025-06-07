@@ -12,6 +12,7 @@ defmodule TickerApi.Application do
       TickerApiWeb.Telemetry,
       TickerApi.Repo,
       TickerApi.Cache,
+      {Oban, Application.fetch_env!(:ticker_api, Oban)},
       {DNSCluster, query: Application.get_env(:ticker_api, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TickerApi.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -20,7 +21,7 @@ defmodule TickerApi.Application do
       # {TickerApi.Worker, arg},
       # Start to serve requests, typically the last entry
       TickerApiWeb.Endpoint,
-      TickerApi.B3FileConsumer
+      TickerApi.B3FileUploaded
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -1,52 +1,21 @@
-defmodule TickerApi.B3FileConsumer do
-  use Broadway
-
-  NimbleCSV.define(CSV, separator: ";", escape: "\"")
+defmodule TickerApi.B3FileIngestion do
+  use Oban.Worker,
+    queue: :b3_file_ingestion,
+    max_attempts: 5
 
   require Logger
 
   alias TickerApi.Ticker
 
-  def start_link(_opts) do
-    Broadway.start_link(__MODULE__,
-      name: __MODULE__,
-      producer: [
-        module:
-          {BroadwaySQS.Producer,
-           queue_url:
-             "https://sqs.us-east-1.amazonaws.com/992382630574/ticker-file-uploaded-queue"}
-      ],
-      processors: [
-        default: [concurrency: 2]
-      ]
-    )
-  end
+  @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"bucket" => bucket, "object" => object}}) do
+    Logger.info("Processing file from bucket: #{bucket["name"]}, key: #{object["key"]}")
 
-  @impl true
-  def handle_message(_, %Broadway.Message{data: data} = message, _) when is_binary(data) do
-    Logger.info("Processing message: #{inspect(data)}")
-
-    data
-    |> parse()
-    |> process_message()
-
-    message
-  end
-
-  defp parse(data) do
-    data = Jason.decode!(data)
-    Map.put(data, "Message", Jason.decode!(data["Message"]))
-  end
-
-  defp process_message(%{
-         "Message" => %{"Records" => [%{"s3" => %{"bucket" => bucket, "object" => object}}]}
-       }) do
-    bucket_name = bucket["name"]
-    file_name = object["key"]
-
-    bucket_name
-    |> read_from_s3_unziped(file_name)
+    bucket["name"]
+    |> read_from_s3_unziped(object["key"])
     |> process_file()
+
+    :ok
   end
 
   defp read_from_s3_unziped(bucket_name, file_name) do

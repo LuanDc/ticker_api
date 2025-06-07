@@ -1,4 +1,5 @@
 import Config
+config :ticker_api, Oban, testing: :manual
 
 # Configure your database
 #
