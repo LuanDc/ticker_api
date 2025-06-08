@@ -36,3 +36,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+config :ticker_api, TickerApi.B3FileUploaded,
+  producer_module: Broadway.DummyProducer,
+  producer_options: []

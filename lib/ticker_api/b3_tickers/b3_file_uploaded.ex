@@ -1,8 +1,6 @@
 defmodule TickerApi.B3FileUploaded do
   use Broadway
 
-  NimbleCSV.define(CSV, separator: ";", escape: "\"")
-
   require Logger
 
   alias Broadway.Message
@@ -20,34 +18,49 @@ defmodule TickerApi.B3FileUploaded do
         default: [concurrency: 2]
       ],
       batchers: [
-        default: [concurrency: 2, batch_size: 5]
+        file_uploaded_batch: [concurrency: 2, batch_size: 5]
       ]
     )
   end
 
   @impl true
-  def handle_message(_, %Broadway.Message{data: data} = message, _) when is_binary(data) do
-    Logger.info("Processing message: #{inspect(data)}")
+  def handle_message(_, %Broadway.Message{data: data} = message, _) do
+    Logger.info("Message consumed from ticker-file-uploaded-queue. Data: #{inspect(data)}")
 
-    Message.update_data(message, &parse/1)
+    case parse_data(data) do
+      {:ok, parsed} ->
+        message
+        |> Message.put_batcher(:file_uploaded_batch)
+        |> Message.update_data(fn _ -> parsed end)
+
+      {:error, reason} ->
+        Logger.error(
+          "Invalid payload for a message came from ticker-file-uploaded-queue: #{inspect(reason)}"
+        )
+
+        message
+    end
   end
 
   @impl true
-  def handle_batch(:default, messages, _batch_info, _context) do
+  def handle_batch(:file_uploaded_batch, messages, _batch_info, _context) do
     messages
     |> Enum.map(& &1.data)
     |> Enum.map(&TickerApi.B3FileIngestion.new/1)
     |> Oban.insert_all()
 
+    Logger.info("Batch of file uploaded messages processed successfully")
+
     messages
   end
 
-  defp parse(data) do
-    %{"Message" => message} = Jason.decode!(data)
-
-    %{"Records" => [%{"s3" => %{"bucket" => bucket, "object" => object}}]} =
-      Jason.decode!(message)
-
-    %{"bucket" => bucket, "object" => object}
+  defp parse_data(data) do
+    with {:ok, %{"Message" => %{"Records" => records}}} <- Jason.decode(data),
+         [%{"s3" => %{"bucket" => %{"name" => bucket_name}, "object" => %{"key" => file_name}}}] <-
+           records do
+      {:ok, %{"bucket" => bucket_name, "file_name" => file_name}}
+    else
+      error -> {:error, error}
+    end
   end
 end

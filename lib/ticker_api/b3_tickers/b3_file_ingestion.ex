@@ -8,11 +8,11 @@ defmodule TickerApi.B3FileIngestion do
   alias TickerApi.Ticker
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"bucket" => bucket, "object" => object}}) do
-    Logger.info("Processing file from bucket: #{bucket["name"]}, key: #{object["key"]}")
+  def perform(%Oban.Job{args: %{"bucket" => bucket, "file_name" => file_name}}) do
+    Logger.info("Processing file from bucket: #{bucket}, file_name: #{file_name}")
 
-    bucket["name"]
-    |> read_from_s3_unziped(object["key"])
+    bucket
+    |> read_from_s3_unziped(file_name)
     |> process_file()
 
     :ok
