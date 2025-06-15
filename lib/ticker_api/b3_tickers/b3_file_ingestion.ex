@@ -6,7 +6,7 @@ defmodule TickerApi.B3FileIngestion do
   require Logger
 
   alias TickerApi.B3Tickers.B3TickersBucket
-  alias TickerApi.Ticker
+  alias TickerApi.{Repo, Ticker}
 
   NimbleCSV.define(CSV, separator: ";", escape: "\"")
 
@@ -16,26 +16,18 @@ defmodule TickerApi.B3FileIngestion do
 
     bucket
     |> B3TickersBucket.read_from_s3_unziped(file_name)
-    |> process_file()
-
-    :ok
+    |> Task.async_stream(&process_file/1, timeout: 300_000)
+    |> Stream.run()
   end
 
   defp process_file(stream) do
     stream
-    |> Task.async_stream(
-      fn stream ->
-        stream
-        |> Stream.map(&IO.iodata_to_binary/1)
-        |> CSV.to_line_stream()
-        |> CSV.parse_stream(skip_headers: true)
-        |> Stream.map(&parse_raw/1)
-        |> Stream.chunk_every(100)
-        |> Stream.map(&TickerApi.Repo.insert_all(Ticker, &1, on_conflict: :nothing))
-        |> Stream.run()
-      end,
-      timeout: 300_000
-    )
+    |> Stream.map(&IO.iodata_to_binary/1)
+    |> CSV.to_line_stream()
+    |> CSV.parse_stream(skip_headers: true)
+    |> Stream.map(&parse_raw/1)
+    |> Stream.chunk_every(100)
+    |> Stream.map(&Repo.insert_all(Ticker, &1, on_conflict: :nothing))
     |> Stream.run()
   end
 
