@@ -15,10 +15,10 @@ defmodule TickerApi.B3FileUploaded do
              "https://sqs.us-east-1.amazonaws.com/992382630574/ticker-file-uploaded-queue"}
       ],
       processors: [
-        default: [concurrency: 2]
+        default: [concurrency: 4]
       ],
       batchers: [
-        file_uploaded_batch: [concurrency: 2, batch_size: 5]
+        file_uploaded_batch: [concurrency: 2, batch_size: 10]
       ]
     )
   end
@@ -27,19 +27,9 @@ defmodule TickerApi.B3FileUploaded do
   def handle_message(_, %Broadway.Message{data: data} = message, _) do
     Logger.info("Message consumed from ticker-file-uploaded-queue. Data: #{inspect(data)}")
 
-    case parse_data(data) do
-      {:ok, parsed} ->
-        message
-        |> Message.put_batcher(:file_uploaded_batch)
-        |> Message.update_data(fn _ -> parsed end)
-
-      {:error, reason} ->
-        Logger.error(
-          "Invalid payload for a message came from ticker-file-uploaded-queue: #{inspect(reason)}"
-        )
-
-        message
-    end
+    data
+    |> parse_data()
+    |> handle_message(message)
   end
 
   @impl true
@@ -52,6 +42,20 @@ defmodule TickerApi.B3FileUploaded do
     Logger.info("Batch of file uploaded messages processed successfully")
 
     messages
+  end
+
+  defp handle_message({:ok, parsed}, message) do
+    message
+    |> Message.put_batcher(:file_uploaded_batch)
+    |> Message.update_data(fn _ -> parsed end)
+  end
+
+  defp handle_message({:error, reason}, message) do
+    Logger.error(
+      "Invalid payload for a message came from ticker-file-uploaded-queue: #{inspect(reason)}"
+    )
+
+    Message.failed(message, :invalid_payload)
   end
 
   defp parse_data(data) do
