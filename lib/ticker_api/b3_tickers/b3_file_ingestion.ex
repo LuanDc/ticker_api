@@ -5,25 +5,20 @@ defmodule TickerApi.B3FileIngestion do
 
   require Logger
 
+  alias TickerApi.B3Tickers.B3TickersBucket
   alias TickerApi.Ticker
+
+  NimbleCSV.define(CSV, separator: ";", escape: "\"")
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"bucket" => bucket, "file_name" => file_name}}) do
     Logger.info("Processing file from bucket: #{bucket}, file_name: #{file_name}")
 
     bucket
-    |> read_from_s3_unziped(file_name)
+    |> B3TickersBucket.read_from_s3_unziped(file_name)
     |> process_file()
 
     :ok
-  end
-
-  defp read_from_s3_unziped(bucket_name, file_name) do
-    aws_s3_config = ExAws.Config.new(:s3)
-    file = Unzip.S3File.new(file_name, bucket_name, aws_s3_config)
-    {:ok, unzip} = Unzip.new(file)
-    file_name = String.replace_suffix(file_name, ".zip", "")
-    Unzip.file_stream!(unzip, file_name)
   end
 
   defp process_file(stream) do
