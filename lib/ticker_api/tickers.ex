@@ -6,6 +6,10 @@ defmodule TickerApi.Tickers do
 
   @ttl :timer.hours(1)
 
+  def insert_all(tickers) do
+    Repo.insert_all(Ticker, tickers, on_conflict: :nothing)
+  end
+
   @spec get_max_quote(String.t(), String.t()) :: integer() | nil
   @decorate cacheable(cache: Cache, key: {:max_quote, ticker, start_date}, opts: [ttl: @ttl])
   def get_max_quote(ticker, start_date) when is_binary(ticker) and is_binary(start_date) do
