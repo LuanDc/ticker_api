@@ -21,9 +21,21 @@ defmodule TickerApi.B3FileIngestionTest do
       Unzip.file_stream!(unzip, "29-04-2025_NEGOCIOSAVISTA.txt")
     end)
 
-    assert count_tickers() == 0
     assert perform_job(B3FileIngestion, args) == :ok
     assert count_tickers() > 0
+  end
+
+  test "ignore invalid lines given from file" do
+    args = %{"bucket" => "test-bucket", "file_name" => "test-file.txt.zip"}
+
+    expect(B3TickersBucketMock, :read_from_s3_unziped, fn _bucket_name, _file_name ->
+      zip_file = Unzip.LocalFile.open("./test/support/fixture/invalid_file.txt.zip")
+      {:ok, unzip} = Unzip.new(zip_file)
+      Unzip.file_stream!(unzip, "invalid_file.txt")
+    end)
+
+    assert perform_job(B3FileIngestion, args) == :ok
+    assert count_tickers() == 0
   end
 
   defp count_tickers, do: Repo.aggregate(Ticker, :count)
