@@ -25,9 +25,15 @@ defmodule TickerApi.B3FileIngestion do
     |> Stream.map(&IO.iodata_to_binary/1)
     |> CSV.to_line_stream()
     |> CSV.parse_stream(skip_headers: true)
-    |> Stream.map(&B3FileRaw.parse_raw/1)
     |> Stream.chunk_every(100)
-    |> Stream.map(&Tickers.insert_all/1)
+    |> Stream.map(&insert_chuck/1)
     |> Stream.run()
+  end
+
+  defp insert_chuck(chuck) do
+    chuck
+    |> Enum.map(&B3FileRaw.parse_raw/1)
+    |> Enum.filter(&(&1 != []))
+    |> Tickers.insert_all()
   end
 end
